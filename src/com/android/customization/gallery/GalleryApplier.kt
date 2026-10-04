@@ -28,6 +28,8 @@ object GalleryApplier {
     private const val ACTION_EXTRACT_DEPTH = "com.android.settings.action.EXTRACT_DEPTH_SUBJECT_NOW"
     const val DEPTH_SUBJECT = "depth_wallpaper_subject_image_uri"
     private const val SUBJECT_TIMEOUT_MS = 15_000L
+    // The photo was just put on the lock screen, so the depth extractor may cut that out
+    private const val EXTRA_FROM_LOCK = "from_lock"
 
     fun screenSize(context: Context): Pair<Int, Int> {
         val bounds = context.getSystemService(WindowManager::class.java)!!
@@ -113,7 +115,8 @@ object GalleryApplier {
             WallpaperManager.getInstance(context).setBitmap(photo, null, true,
                 WallpaperManager.FLAG_LOCK)
             Settings.System.putInt(resolver, DEPTH_ENABLED, 1)
-            context.startService(Intent(ACTION_EXTRACT_DEPTH).setPackage("com.android.settings"))
+            context.startService(Intent(ACTION_EXTRACT_DEPTH).setPackage("com.android.settings")
+                .putExtra(EXTRA_FROM_LOCK, true))
         } catch (e: Exception) {
             Log.w(TAG, "Could not extract the depth subject", e)
             return
